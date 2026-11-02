@@ -15,126 +15,6 @@ import matplotlib.gridspec as gridspec
 import os
 import zipfile
 
-'''
-def plot_kite_data_with_sliders(flight_data, variables, labels, subplot_labels):
-    """
-    Plot kite flight data with interactive sliders for cycle selection and 3D view control.
-
-    Parameters:
-        flight_data (pd.DataFrame): The dataset containing kite flight data.
-        selected_vars (list of str): The variables to plot in time-series format.
-    """
-    # Extract unique cycles
-    unique_cycles = flight_data["cycle"].unique()
-
-    # Initial cycle
-    current_cycle = unique_cycles[0]
-
-    # Filter data for the initial cycle
-    mask = flight_data["cycle"] == current_cycle
-
-    # Extract time and position data
-    t = flight_data[mask]["time"].values
-    x = flight_data[mask]["kite_pos_east"].values
-    y = flight_data[mask]["kite_pos_north"].values
-    z = flight_data[mask]["kite_height"].values
-
-    # Setup figure and layout
-    n = len(variables)
-    fig = plt.figure(figsize=(14, 8))
-    gs = gridspec.GridSpec(
-        n, 2, width_ratios=[1, 1], height_ratios=[0.5 for _ in range(n)]
-    )
-
-    # 3D plot of the trajectory
-    ax_3d = fig.add_subplot(gs[0:3, 0], projection="3d")
-    (trajectory_line,) = ax_3d.plot(x, y, z, label="Trajectory")
-    ax_3d.set_xlabel("X")
-    ax_3d.set_ylabel("Y")
-    ax_3d.set_zlabel("Z")
-    ax_3d.set_title("Kite Trajectory")
-    ax_3d.legend()
-
-    # Time series plots for each selected variable
-    ax_vars = []
-    for i, variable in enumerate(variables):
-        ax = fig.add_subplot(gs[i, 1:])
-        ax_subvars = []
-        for j, var in enumerate(variable):
-            (line,) = ax.plot(t, var[mask], label=labels[i][j])
-            ax_subvars.append((line))
-
-        ax.set_ylabel(subplot_labels[i])
-        if i == len(variables) - 1:
-            ax.set_xlabel("Time")
-        ax.legend()
-        ax.grid(True)
-        ax_vars.append(ax_subvars)
-
-    # Cycle slider
-    slider_ax_cycle = fig.add_axes(
-        [0.1, 0.05, 0.3, 0.03], facecolor="lightgoldenrodyellow"
-    )
-    cycle_slider = Slider(
-        slider_ax_cycle, "Cycle", 0, len(unique_cycles) - 1, valinit=0, valstep=1
-    )
-
-    # Slider for elevation angle
-    slider_ax_elev = fig.add_axes(
-        [0.1, 0.1, 0.3, 0.03], facecolor="lightgoldenrodyellow"
-    )
-    elev_slider = Slider(
-        slider_ax_elev, "Elevation", 0, 90, valinit=30, orientation="horizontal"
-    )
-
-    # Slider for azimuth angle
-    slider_ax_azim = fig.add_axes(
-        [0.1, 0.15, 0.3, 0.03], facecolor="lightgoldenrodyellow"
-    )
-    azim_slider = Slider(
-        slider_ax_azim, "Azimuth", 0, 360, valinit=30, orientation="horizontal"
-    )
-
-    # Update function for cycle slider
-    def update_cycle(val):
-        nonlocal flight_data, t, x, y, z, variables
-        cycle_idx = int(cycle_slider.val)
-        selected_cycle = unique_cycles[cycle_idx]
-        mask = flight_data["cycle"] == selected_cycle
-
-        # Update trajectory data
-        t = flight_data[mask]["time"].values
-        x = flight_data[mask]["kite_pos_east"].values
-        y = flight_data[mask]["kite_pos_north"].values
-        z = flight_data[mask]["kite_height"].values
-        trajectory_line.set_data(x, y)
-        trajectory_line.set_3d_properties(z)
-        trajectory_line.axes.set_xlim(x.min(), x.max())
-        trajectory_line.axes.set_ylim(y.min(), y.max())
-        trajectory_line.axes.set_zlim(z.min(), z.max())
-
-        # Update variables
-        for (line), variable in zip(ax_vars, variables):
-            for j, var in enumerate(variable):
-                line[j].set_data(t, var[mask])
-            line[j].axes.set_xlim(t.min(), t.max())
-
-        # Redraw the figure
-        fig.canvas.draw_idle()
-
-    # Update function for 3D view sliders
-    def update_view(val):
-        ax_3d.view_init(elev=elev_slider.val, azim=azim_slider.val)
-        fig.canvas.draw_idle()
-
-    # Connect sliders to update functions
-    cycle_slider.on_changed(update_cycle)
-    elev_slider.on_changed(update_view)
-    azim_slider.on_changed(update_view)
-
-    plt.show()
-'''
-
 def plot_kite_data_with_sliders(flight_data, variables, labels, subplot_labels):
     """
     Plot kite flight data with:
@@ -579,9 +459,48 @@ ensure_csv_file("log_2025-10-09_58-33-00")
 # Load flight data
 df = pd.read_csv("log_2025-10-09_58-33-00.csv")
 
-flight_data = df[df["kite_height"] > 20]
+
+# Plotting to see which part of the data is actually flight data
+kite_height = df["kite_height"]
+min_height = 20*np.ones(kite_height.shape)
+cycle_100 = 100*df["cycle"]
+x = df.index.to_numpy()
+plt.plot(x,np.transpose([kite_height,min_height,cycle_100]))
+plt.legend(["kite height","min flight height", "100 * cycle_num"])
+plt.title("Whole data and flight data")
+plt.show()
+
+
+df["flight"] = (kite_height > min_height).astype(int)
+
+df[["ground_tether_reelout_speed","ground_mech_power","ground_tether_force","kite_height"]].isna().any()
+
+
+
+flight_phase_mapping = {"unknown": 0, "pp-ro": 1, "pp-ri": -1, "pp-riro": -0.5, "pp-rori": 0.5}
+df["flight_phase_num"]= df["flight_phase"].map(flight_phase_mapping)
+# flight_phase_index already exists, and has {"unknown": NaN, "pp-ro": 1, "pp-ri": 2, "pp-riro": 3, "pp-rori": 4}
+
+for q in ["ground_tether_reelout_speed", "ground_tether_length", "ground_tether_force", "ground_mech_energy", "ground_mech_power"]:
+    plt.plot(x,np.transpose([df[q],df["flight_phase_num"]*max(abs(df[q])),df["flight"]*max(abs(df[q])),df["cycle"]*max(abs(df[q]))/3]))
+    plt.legend([q,"flight_phase={unknown=0,pp-ro=100%,pp-ri=-100%,pp-riro=-50%,pp-rori=50%}","flight","cycle"])
+    plt.title(q+" and some extra info")
+    plt.show()
+
+
+# There are 2 points where kite_height is NaN, one is missing on cycle 2, so flight is 0 on one point it shouldn't. And the other one is before the kite starts flying.
+
+# Fixing "flight"
+df.loc[df["kite_height"].isna() & (df["cycle"] == 2), "flight"] = 1
+
+# Interpolating "kite_flight" just in case.
+df["kite_height"] = df["kite_height"].interpolate(method="linear")
+
+
 
 from datetime import datetime, UTC
+
+flight_data = df[df["flight"] == 1]
 
 # Convert timestamp to datetime object of initial and final time
 datetime_ini = datetime.fromtimestamp(flight_data["time"].iloc[0], UTC)
@@ -647,255 +566,10 @@ subplot_labels = [
 # Call the function
 plot_kite_data_with_sliders(flight_data, variables, labels, subplot_labels)
 
-'''
-import numpy as np
 
-g0 = 9.80665  # N per kgf
+# Saving on separate .csv files: 
+# 1. Tether force in newton, Reelout speed, ground mech power and calculated power as F*v over the whole flightlog
+# 2. Tether force in newton, Reelout speed, ground mech power and calculated power as F*v only when the kite is flying (kite_height > 20)
+# 3. Tether force in newton, Reelout speed, ground mech power and calculated power as F*v only during cycles 1 and 2 (only full cycles without unkown flight phases anywhere)
+# 4., 5. y 6. Same files, but with the magnitudes normalized using the maximum value of each.
 
-power_from_tether = (
-    flight_data["ground_tether_force"]
-    * g0
-    * flight_data["ground_tether_reelout_speed"]
-)
-
-measured_power = flight_data["ground_mech_power"]
-
-valid = (
-    np.isfinite(power_from_tether)
-    & np.isfinite(measured_power)
-    & (np.abs(power_from_tether) > 100)
-)
-
-ratio = measured_power[valid] / power_from_tether[valid]
-
-print("Median power ratio:", np.median(ratio))
-print(
-    "Correlation:",
-    np.corrcoef(
-        measured_power[valid],
-        power_from_tether[valid],
-    )[0, 1],
-)
-
-
-
-import numpy as np
-import pandas as pd
-
-g0 = 9.80665
-
-force_N = flight_data["ground_tether_force"] * g0
-speed = flight_data["ground_tether_reelout_speed"]
-power_tether = force_N * speed
-power_mech = flight_data["ground_mech_power"]
-
-analysis = pd.DataFrame({
-    "speed": speed,
-    "power_tether": power_tether,
-    "power_mech": power_mech,
-}).replace([np.inf, -np.inf], np.nan).dropna()
-
-# Remove low-power points, where ratios become unstable
-analysis = analysis[
-    (analysis["power_tether"].abs() > 500)
-    & (analysis["power_mech"].abs() > 100)
-]
-
-for phase, mask in {
-    "reel-out": analysis["speed"] > 0,
-    "reel-in": analysis["speed"] < 0,
-}.items():
-
-    subset = analysis.loc[mask]
-
-    if len(subset) < 2:
-        continue
-
-    correlation = subset["power_mech"].corr(subset["power_tether"])
-
-    ratio = (
-        subset["power_mech"]
-        / subset["power_tether"]
-    ).median()
-
-    # Fit P_mech = slope * P_tether + intercept
-    slope, intercept = np.polyfit(
-        subset["power_tether"],
-        subset["power_mech"],
-        1,
-    )
-
-    print(f"\n{phase}")
-    print(f"Samples: {len(subset)}")
-    print(f"Correlation: {correlation:.3f}")
-    print(f"Median ratio: {ratio:.3f}")
-    print(f"Slope: {slope:.3f}")
-    print(f"Intercept: {intercept:.1f} W")
-
-
-import numpy as np
-
-x = analysis["power_tether"].to_numpy()
-y = analysis["power_mech"].to_numpy()
-
-x = (x - x.mean()) / x.std()
-y = (y - y.mean()) / y.std()
-
-max_lag_samples = 100
-lags = range(-max_lag_samples, max_lag_samples + 1)
-
-correlations = []
-
-for lag in lags:
-    if lag < 0:
-        corr = np.corrcoef(x[-lag:], y[:lag])[0, 1]
-    elif lag > 0:
-        corr = np.corrcoef(x[:-lag], y[lag:])[0, 1]
-    else:
-        corr = np.corrcoef(x, y)[0, 1]
-
-    correlations.append(corr)
-
-best_index = int(np.nanargmax(correlations))
-best_lag = list(lags)[best_index]
-best_corr = correlations[best_index]
-
-sampling_period_seconds = 0.1
-best_lag_seconds = best_lag * sampling_period_seconds
-
-print("\nBest lag in samples:", best_lag)
-print("Best lag in seconds:", best_lag_seconds)
-print("Best correlation:", best_corr)
-
-
-
-import numpy as np
-
-sampling_period = 0.1
-max_lag_seconds = 5
-max_lag_samples = round(max_lag_seconds / sampling_period)
-
-
-def find_best_lag(x, y, max_lag):
-    x = np.asarray(x, dtype=float)
-    y = np.asarray(y, dtype=float)
-
-    valid = np.isfinite(x) & np.isfinite(y)
-    x = x[valid]
-    y = y[valid]
-
-    x = (x - np.mean(x)) / np.std(x)
-    y = (y - np.mean(y)) / np.std(y)
-
-    lags = np.arange(-max_lag, max_lag + 1)
-    correlations = []
-
-    for lag in lags:
-        if lag < 0:
-            corr = np.corrcoef(x[-lag:], y[:lag])[0, 1]
-        elif lag > 0:
-            corr = np.corrcoef(x[:-lag], y[lag:])[0, 1]
-        else:
-            corr = np.corrcoef(x, y)[0, 1]
-
-        correlations.append(corr)
-
-    correlations = np.asarray(correlations)
-
-    best_index = np.nanargmax(correlations)
-
-    return (
-        lags[best_index],
-        correlations[best_index],
-        lags,
-        correlations,
-    )
-
-
-for phase, mask in {
-    "reel-out": analysis["speed"] > 0,
-    "reel-in": analysis["speed"] < 0,
-}.items():
-
-    subset = analysis.loc[mask]
-
-    best_lag, best_corr, _, _ = find_best_lag(
-        subset["power_tether"],
-        subset["power_mech"],
-        max_lag_samples,
-    )
-
-    print(f"\n{phase}")
-    print(f"Best lag: {best_lag} samples")
-    print(f"Best lag: {best_lag * sampling_period:.2f} s")
-    print(f"Best correlation: {best_corr:.3f}")
-
-
-
-
-dt = 0.1
-
-for phase, mask in {
-    "reel-out": analysis["speed"] > 0,
-    "reel-in": analysis["speed"] < 0,
-}.items():
-
-    subset = analysis.loc[mask]
-
-    energy_tether_J = np.trapezoid(
-        subset["power_tether"],
-        dx=dt,
-    )
-
-    energy_mech_J = np.trapezoid(
-        subset["power_mech"],
-        dx=dt,
-    )
-
-    print(f"\n{phase}")
-    print(f"Tether energy: {energy_tether_J / 3.6e6:.3f} kWh")
-    print(f"Mechanical energy: {energy_mech_J / 3.6e6:.3f} kWh")
-
-    if abs(energy_tether_J) > 0:
-        print(
-            "Energy ratio:",
-            energy_mech_J / energy_tether_J,
-        )
-
-
-dt = 0.1
-
-power_tether = (
-    flight_data["ground_tether_force"]
-    * 9.80665
-    * flight_data["ground_tether_reelout_speed"]
-)
-
-power_mech = flight_data["ground_mech_power"]
-speed = flight_data["ground_tether_reelout_speed"]
-
-valid = (
-    np.isfinite(power_tether)
-    & np.isfinite(power_mech)
-    & np.isfinite(speed)
-)
-
-for phase, phase_mask in {
-    "reel-out": speed > 0,
-    "reel-in": speed < 0,
-}.items():
-
-    mask = valid & phase_mask
-
-    energy_tether_J = np.sum(power_tether[mask]) * dt
-    energy_mech_J = np.sum(power_mech[mask]) * dt
-
-    print(f"\n{phase}")
-    print(f"Tether energy: {energy_tether_J / 3.6e6:.3f} kWh")
-    print(f"Mechanical energy: {energy_mech_J / 3.6e6:.3f} kWh")
-    print(
-        "Energy ratio:",
-        energy_mech_J / energy_tether_J,
-    )
-
-'''

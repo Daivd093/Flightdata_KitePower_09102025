@@ -1,0 +1,185 @@
+time                                False
+date                                False
+time_of_day                         False
+kite_0_vx                            True
+kite_0_vy                            True
+kite_0_vz                            True
+kite_0_latitude                      True
+kite_0_longitude                     True
+kite_0_altitude                      True
+kite_0_roll                          True
+kite_0_pitch                         True
+kite_0_yaw                           True
+kite_1_vx                            True
+kite_1_vy                            True
+kite_1_vz                            True
+kite_1_latitude                      True
+kite_1_longitude                     True
+kite_1_altitude                      True
+kite_1_roll                          True
+kite_1_pitch                         True
+kite_1_yaw                           True
+ground_upwind_direction              True
+ground_wind_velocity                 True
+ground_tether_reelout_speed         False
+ground_tether_length                False
+ground_tether_force                 False
+kite_pos_east                        True
+kite_pos_north                       True
+kite_height                          True
+kite_elevation                       True
+kite_azimuth                         True
+kite_distance                        True
+kite_heading                         True
+kite_course                          True
+kite_actual_steering                 True
+kite_actual_depower                  True
+kite_set_steering                    True
+kite_set_depower                     True
+ground_mech_energy                  False
+ground_mech_power                   False
+airspeed_temperature                 True
+airspeed_angle_of_attack             True
+airspeed_sideslip_angle              True
+airspeed_apparent_windspeed          True
+kite_turn_rate                       True
+kite_course_rate                     True
+flight_phase                        False
+flight_phase_index                   True
+Timestamp (end of interval)         False
+Int Temp (°C)                       False
+Wiper count                         False
+40m Wind Speed (m/s)                False
+40m Wind Speed Dispersion (m/s)     False
+40m Wind Speed min (m/s)            False
+40m Wind Speed max (m/s)            False
+40m Wind Direction (°)              False
+40m Z-wind (m/s)                    False
+40m Z-wind Dispersion (m/s)         False
+40m CNR (dB)                        False
+40m CNR min (dB)                    False
+40m Dopp Spect Broad (m/s)          False
+40m Data Availability (%)           False
+60m Wind Speed (m/s)                False
+60m Wind Speed Dispersion (m/s)     False
+60m Wind Speed min (m/s)            False
+60m Wind Speed max (m/s)            False
+60m Wind Direction (°)              False
+60m Z-wind (m/s)                    False
+60m Z-wind Dispersion (m/s)         False
+60m CNR (dB)                        False
+60m CNR min (dB)                    False
+60m Dopp Spect Broad (m/s)          False
+60m Data Availability (%)           False
+80m Wind Speed (m/s)                False
+80m Wind Speed Dispersion (m/s)     False
+80m Wind Speed min (m/s)            False
+80m Wind Speed max (m/s)            False
+80m Wind Direction (°)              False
+80m Z-wind (m/s)                    False
+80m Z-wind Dispersion (m/s)         False
+80m CNR (dB)                        False
+80m CNR min (dB)                    False
+80m Dopp Spect Broad (m/s)          False
+80m Data Availability (%)           False
+100m Wind Speed (m/s)               False
+100m Wind Speed Dispersion (m/s)    False
+100m Wind Speed min (m/s)           False
+100m Wind Speed max (m/s)           False
+100m Wind Direction (°)             False
+100m Z-wind (m/s)                   False
+100m Z-wind Dispersion (m/s)        False
+100m CNR (dB)                       False
+100m CNR min (dB)                   False
+100m Dopp Spect Broad (m/s)         False
+100m Data Availability (%)          False
+120m Wind Speed (m/s)               False
+120m Wind Speed Dispersion (m/s)    False
+120m Wind Speed min (m/s)           False
+120m Wind Speed max (m/s)           False
+120m Wind Direction (°)             False
+120m Z-wind (m/s)                   False
+120m Z-wind Dispersion (m/s)        False
+120m CNR (dB)                       False
+120m CNR min (dB)                   False
+120m Dopp Spect Broad (m/s)         False
+120m Data Availability (%)          False
+140m Wind Speed (m/s)               False
+140m Wind Speed Dispersion (m/s)    False
+140m Wind Speed min (m/s)           False
+140m Wind Speed max (m/s)           False
+140m Wind Direction (°)             False
+140m Z-wind (m/s)                   False
+140m Z-wind Dispersion (m/s)        False
+140m CNR (dB)                       False
+140m CNR min (dB)                   False
+140m Dopp Spect Broad (m/s)         False
+140m Data Availability (%)          False
+160m Wind Speed (m/s)               False
+160m Wind Speed Dispersion (m/s)    False
+160m Wind Speed min (m/s)           False
+160m Wind Speed max (m/s)           False
+160m Wind Direction (°)             False
+160m Z-wind (m/s)                   False
+160m Z-wind Dispersion (m/s)        False
+160m CNR (dB)                       False
+160m CNR min (dB)                   False
+160m Dopp Spect Broad (m/s)         False
+160m Data Availability (%)          False
+180m Wind Speed (m/s)               False
+180m Wind Speed Dispersion (m/s)    False
+180m Wind Speed min (m/s)           False
+180m Wind Speed max (m/s)           False
+180m Wind Direction (°)             False
+180m Z-wind (m/s)                   False
+180m Z-wind Dispersion (m/s)        False
+180m CNR (dB)                       False
+180m CNR min (dB)                   False
+180m Dopp Spect Broad (m/s)         False
+180m Data Availability (%)          False
+200m Wind Speed (m/s)               False
+200m Wind Speed Dispersion (m/s)    False
+200m Wind Speed min (m/s)           False
+200m Wind Speed max (m/s)           False
+200m Wind Direction (°)             False
+200m Z-wind (m/s)                   False
+200m Z-wind Dispersion (m/s)        False
+200m CNR (dB)                       False
+200m CNR min (dB)                   False
+200m Dopp Spect Broad (m/s)         False
+200m Data Availability (%)          False
+220m Wind Speed (m/s)               False
+220m Wind Speed Dispersion (m/s)    False
+220m Wind Speed min (m/s)           False
+220m Wind Speed max (m/s)           False
+220m Wind Direction (°)             False
+220m Z-wind (m/s)                   False
+220m Z-wind Dispersion (m/s)        False
+220m CNR (dB)                       False
+220m CNR min (dB)                   False
+220m Dopp Spect Broad (m/s)         False
+220m Data Availability (%)          False
+240m Wind Speed (m/s)               False
+240m Wind Speed Dispersion (m/s)    False
+240m Wind Speed min (m/s)           False
+240m Wind Speed max (m/s)           False
+240m Wind Direction (°)             False
+240m Z-wind (m/s)                   False
+240m Z-wind Dispersion (m/s)        False
+240m CNR (dB)                       False
+240m CNR min (dB)                   False
+240m Dopp Spect Broad (m/s)         False
+240m Data Availability (%)          False
+250m Wind Speed (m/s)               False
+250m Wind Speed Dispersion (m/s)    False
+250m Wind Speed min (m/s)           False
+250m Wind Speed max (m/s)           False
+250m Wind Direction (°)             False
+250m Z-wind (m/s)                   False
+250m Z-wind Dispersion (m/s)        False
+250m CNR (dB)                       False
+250m CNR min (dB)                   False
+250m Dopp Spect Broad (m/s)         False
+250m Data Availability (%)          False
+cycle                               False
+flight                              False
