@@ -606,24 +606,21 @@ num_cols_not_to_normalize = ["time", "cycle", "flight_phase", "flight_phase_inde
 
 numeric_cols = df_full.select_dtypes(include=np.number).columns
 numeric_cols_to_norm = numeric_cols.difference(num_cols_not_to_normalize)
-max_vals = df_full[numeric_cols_to_norm].abs().max()
-max_vals = max_vals.replace(0, 1) # Avoiding division by 0, just in case
 
-# Saving the original normalization values
-max_vals.to_csv("normalization_values.csv", header=["max_value"])
-
-def normalize(data,norm_cols):
+def normalize_and_save(data,norm_cols,file_suffix):
+    max_vals = data[norm_cols].abs().max()
+    max_vals = max_vals.replace(0, 1) # Avoiding division by 0, just in case
+    max_vals.to_csv(f"normalization_values_{file_suffix}.csv", header=["max_value"])
+    print(f"Saved: normalization_values_{file_suffix}.csv")
     normalized = data.copy()
     normalized[norm_cols] = data[norm_cols] / max_vals
-    return normalized
+    normalized.to_csv(f"normalized_flightlog_{file_suffix}.csv", index=False)    
+    print(f"Saved: normalized_flightlog_{file_suffix}.csv")
+    return normalized,max_vals
 
-# 3. Clean cycles only, normalize
-df_clean_normalized = normalize(df_clean,numeric_cols_to_norm)
-df_clean_normalized.to_csv("clean_cycles_normalized.csv", index=False)
-print("Saved: clean_cycles_normalized.csv")
- 
-# --- 4. Full flight log, normalized (for future use) ---
-df_full_normalized = normalize(df_full,numeric_cols_to_norm)
-df_full_normalized.to_csv("full_flightlog_normalized.csv", index=False)
-print("Saved: full_flightlog_normalized.csv")
+# 3. Clean cycles only, normalized
+df_clean_normalized,max_vals_clean = normalize_and_save(df_clean,numeric_cols_to_norm,"clean_cycles")
+
+# 4. Full flight log, normalized
+df_full_normalized,max_vals_full = normalize_and_save(df_full,numeric_cols_to_norm,"full_operation")
  
