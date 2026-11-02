@@ -475,8 +475,6 @@ df["flight"] = (kite_height > min_height).astype(int)
 
 df[["ground_tether_reelout_speed","ground_mech_power","ground_tether_force","kite_height"]].isna().any()
 
-
-
 flight_phase_mapping = {"unknown": 0, "pp-ro": 1, "pp-ri": -1, "pp-riro": -0.5, "pp-rori": 0.5}
 df["flight_phase_num"]= df["flight_phase"].map(flight_phase_mapping)
 # flight_phase_index already exists, and has {"unknown": NaN, "pp-ro": 1, "pp-ri": 2, "pp-riro": 3, "pp-rori": 4}
@@ -495,8 +493,6 @@ df.loc[df["kite_height"].isna() & (df["cycle"] == 2), "flight"] = 1
 
 # Interpolating "kite_flight" just in case.
 df["kite_height"] = df["kite_height"].interpolate(method="linear")
-
-
 
 from datetime import datetime, UTC
 
@@ -567,9 +563,67 @@ subplot_labels = [
 plot_kite_data_with_sliders(flight_data, variables, labels, subplot_labels)
 
 
-# Saving on separate .csv files: 
-# 1. Tether force in newton, Reelout speed, ground mech power and calculated power as F*v over the whole flightlog
-# 2. Tether force in newton, Reelout speed, ground mech power and calculated power as F*v only when the kite is flying (kite_height > 20)
-# 3. Tether force in newton, Reelout speed, ground mech power and calculated power as F*v only during cycles 1 and 2 (only full cycles without unkown flight phases anywhere)
-# 4., 5. y 6. Same files, but with the magnitudes normalized using the maximum value of each.
+# ------------------------------------------------------------------
 
+# Saving on reduced CSV files for the electrical testbench:
+  
+# Columns to keep in all saved files
+columns_to_save = [
+    "time",
+    "cycle",
+    "flight_phase",
+    "flight_phase_index",
+    "kite_height",
+    "ground_tether_length",
+    "ground_tether_force_N",        # after multiplying ground_tether_force by 9.80665
+    "ground_tether_reelout_speed",
+    "ground_tether_power_calc",     # calculated from multiplying ground_tether_force_N*ground_tether_reelout_speed
+    "ground_mech_power",            # measured mech power
+    "ground_mech_energy"            # measured mech energy
+]
+ 
+# Adding the calculated columns to df:
+df["ground_tether_force_N"] = df["ground_tether_force"] * 9.80665
+df["ground_tether_power_calc"] = df["ground_tether_force_N"] * df["ground_tether_reelout_speed"]
+
+# 1. Full flight log, selected columns, original data
+df_full = df[columns_to_save]
+df_full.to_csv("full_flightlog.csv", index=False)
+print("Saved: full_flightlog.csv")
+ 
+# 2. Clean cycles only (flight_phase_index not NaN), original data
+#       These are the 4 full cycles without unknown flight phases,
+#       excluding takeoff, landing and the partial cycles around them.
+clean_cycles_mask = df["flight_phase_index"].notna()
+df_clean = df.loc[clean_cycles_mask, columns_to_save]
+df_clean.to_csv("clean_cycles.csv", index=False)
+print("Saved: clean_cycles.csv")
+
+
+# Saving also a normalized version of both dataframes
+
+num_cols_not_to_normalize = ["time", "cycle", "flight_phase", "flight_phase_index"]
+
+numeric_cols = df_full.select_dtypes(include=np.number).columns
+numeric_cols_to_norm = numeric_cols.difference(num_cols_not_to_normalize)
+max_vals = df_full[numeric_cols_to_norm].abs().max()
+max_vals = max_vals.replace(0, 1) # Avoiding division by 0, just in case
+
+# Saving the original normalization values
+max_vals.to_csv("normalization_values.csv", header=["max_value"])
+
+def normalize(data,norm_cols):
+    normalized = data.copy()
+    normalized[norm_cols] = data[norm_cols] / max_vals
+    return normalized
+
+# 3. Clean cycles only, normalize
+df_clean_normalized = normalize(df_clean,numeric_cols_to_norm)
+df_clean_normalized.to_csv("clean_cycles_normalized.csv", index=False)
+print("Saved: clean_cycles_normalized.csv")
+ 
+# --- 4. Full flight log, normalized (for future use) ---
+df_full_normalized = normalize(df_full,numeric_cols_to_norm)
+df_full_normalized.to_csv("full_flightlog_normalized.csv", index=False)
+print("Saved: full_flightlog_normalized.csv")
+ 
